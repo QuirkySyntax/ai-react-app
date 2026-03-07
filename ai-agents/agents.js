@@ -1,5 +1,5 @@
 import fs from "fs";
-import fetch from "node-fetch";
+
 
 const prompt = process.argv[2];
 
