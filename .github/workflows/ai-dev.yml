@@ -1,0 +1,49 @@
+name: AI Dev Agent
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  ai:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run AI agent
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          node ai-agents/agents.js "${{ github.event.issue.title }}"
+
+      - name: Commit generated code
+        run: |
+          git config user.name "ai-agent"
+          git config user.email "ai@bot.dev"
+
+          git checkout -b ai-${{ github.run_id }}
+
+          git add .
+          git commit -m "AI generated feature: ${{ github.event.issue.title }}"
+          git push origin HEAD
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: ai-${{ github.run_id }}
+          title: "AI Feature: ${{ github.event.issue.title }}"
+          body: "Generated automatically by AI agent"
