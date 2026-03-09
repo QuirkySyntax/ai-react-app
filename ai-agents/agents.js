@@ -1,9 +1,100 @@
+// import fs from "fs";
+
+
+// const prompt = process.argv[2];
+
+// async function generateCode() {
+
+//   const response = await fetch("https://api.openai.com/v1/chat/completions", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+//     },
+//     body: JSON.stringify({
+//       model: "gpt-4o-mini",
+//       messages: [
+//         {
+//           role: "system",
+//           content: "You are a React developer. Generate only React component code."
+//         },
+//         {
+//           role: "user",
+//           content: prompt
+//         }
+//       ]
+//     })
+//   });
+
+//   const data = await response.json();
+//   const code = data.choices[0].message.content;
+
+//   fs.mkdirSync("src/pages", { recursive: true });
+
+//   fs.writeFileSync("src/pages/AIGenerated.tsx", code);
+// }
+
+// generateCode();
+
+
+
+
+
+
 import fs from "fs";
+import path from "path";
 
+const task = process.argv[2];
 
-const prompt = process.argv[2];
+function getRepoStructure(dir, depth = 3) {
+  if (depth === 0) return [];
+
+  const items = fs.readdirSync(dir);
+  let structure = [];
+
+  for (const item of items) {
+    if (item === "node_modules" || item === ".git") continue;
+
+    const fullPath = path.join(dir, item);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      structure.push(`${fullPath}/`);
+      structure = structure.concat(getRepoStructure(fullPath, depth - 1));
+    } else {
+      structure.push(fullPath);
+    }
+  }
+
+  return structure;
+}
 
 async function generateCode() {
+
+  const repoStructure = getRepoStructure("src").join("\n");
+
+  const systemPrompt = `
+You are a senior React developer working on a Vite + React project.
+
+Current project structure:
+
+${repoStructure}
+
+Your task:
+${task}
+
+Rules:
+- Create or modify files as needed
+- Follow the existing project structure
+- Update App.tsx if necessary
+- Return files using the format:
+
+FILE: path/to/file
+<code>
+
+FILE: path/to/file
+<code>
+`;
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -16,22 +107,34 @@ async function generateCode() {
       messages: [
         {
           role: "system",
-          content: "You are a React developer. Generate only React component code."
-        },
-        {
-          role: "user",
-          content: prompt
+          content: systemPrompt
         }
       ]
     })
   });
 
   const data = await response.json();
-  const code = data.choices[0].message.content;
+  const output = data.choices[0].message.content;
 
-  fs.mkdirSync("src/pages", { recursive: true });
+  const files = output.split("FILE:");
 
-  fs.writeFileSync("src/pages/AIGenerated.tsx", code);
+  files.forEach(section => {
+
+    if (!section.trim()) return;
+
+    const lines = section.trim().split("\n");
+    const filePath = lines.shift().trim();
+    const code = lines.join("\n");
+
+    const dir = path.dirname(filePath);
+
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(filePath, code);
+
+    console.log("Created/Updated:", filePath);
+
+  });
+
 }
 
 generateCode();
