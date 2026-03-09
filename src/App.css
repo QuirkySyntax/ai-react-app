@@ -1,42 +1,50 @@
-#root {
-  max-width: 1280px;
+```css
+/* Existing styles... */
+
+.login-container {
+  max-width: 400px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.login-container h2 {
+  margin-bottom: 1rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.login-container div {
+  margin-bottom: 1rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.login-container label {
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
-.card {
-  padding: 2em;
+.login-container input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-.read-the-docs {
-  color: #888;
+.login-container button {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
+
+.login-container button:hover {
+  background-color: #0056b3;
+}
+```
+
+### Summary
+
+With these changes, you should now have a basic login page that can be accessed by navigating to `/login` in your application. The form currently doesn't contain any real authentication logic, so remember to add that according to your application's requirements later on.
