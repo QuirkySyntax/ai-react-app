@@ -145,9 +145,18 @@ to render the new page.
   });
 
   const data = await response.json();
-  const output = data.choices[0].message.content;
 
-  const files = output.split("FILE:");
+ if (!data.choices || !data.choices[0]) {
+    console.log("AI returned invalid response");
+    return;
+  }
+  
+  const output = data.choices[0].message.content;
+  const cleaned = output
+  .replace(/```[a-z]*/g, "")
+  .replace(/```/g, "")
+  .trim();
+  const files = cleaned.split("FILE:");
 
   files.forEach(section => {
 
@@ -155,6 +164,13 @@ to render the new page.
 
     const lines = section.trim().split("\n");
     const filePath = lines.shift().trim();
+
+      // Prevent AI writing weird paths
+    if (!filePath.startsWith("src") && !filePath.startsWith("public")) {
+      console.log("Skipping invalid path:", filePath);
+      return;
+    }
+
     const code = lines.join("\n");
 
     const dir = path.dirname(filePath);
