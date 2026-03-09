@@ -1,0 +1,16 @@
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.form-group {
+  margin: 10px 0;
+}
+
+button {
+  padding: 8px 16px;
+}
