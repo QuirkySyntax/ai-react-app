@@ -73,6 +73,29 @@ async function generateCode() {
 
   const repoStructure = getRepoStructure("src").join("\n");
 
+//   const systemPrompt = `
+// You are a senior React developer working on a Vite + React project.
+
+// Current project structure:
+
+// ${repoStructure}
+
+// Your task:
+// ${task}
+
+// Rules:
+// - Create or modify files as needed
+// - Follow the existing project structure
+// - Update App.tsx if necessary
+// - Return files using the format:
+
+// FILE: path/to/file
+// <code>
+
+// FILE: path/to/file
+// <code>
+// `;
+
   const systemPrompt = `
 You are a senior React developer working on a Vite + React project.
 
@@ -80,20 +103,28 @@ Current project structure:
 
 ${repoStructure}
 
-Your task:
+Task:
 ${task}
 
-Rules:
-- Create or modify files as needed
-- Follow the existing project structure
-- Update App.tsx if necessary
-- Return files using the format:
+IMPORTANT RULES:
+
+Return ONLY files.
+Do NOT explain anything.
+Do NOT add text before or after.
+
+Always follow this format strictly:
 
 FILE: path/to/file
 <code>
 
 FILE: path/to/file
 <code>
+
+If the feature needs UI, create a page in src/pages.
+
+If necessary update:
+src/App.tsx
+to render the new page.
 `;
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
